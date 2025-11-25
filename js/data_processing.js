@@ -5,10 +5,15 @@ $(document).ready(function () {
 });
 
 function cleanElectionData(rawData) {
-  const cleaned = { Inscritos: {}, Votantes: {} };
+  const cleaned = {};
   const distritosArray = Object.entries(rawData[0]);
 
   distritosArray.forEach(([codigo, nome]) => {
-    console.log(`Código: ${codigo}, Nome: ${nome}`);
+    rawData.forEach((row) => {
+      const item = row["Círculo"];
+      console.log(item);
+    });
   });
+
+  return cleaned;
 }
