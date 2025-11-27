@@ -7,5 +7,29 @@ format:
 ---
 
 ```{ojs}
-data = FileAttachment("../data/ContinenteDistritos_geo.geojson").json()
+data = FileAttachment("data/ContinenteDistritos_geo.geojson").json()
+tbl = FileAttachment("data/Legislativas1.json").json()
+
+html `<link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />`
+
+mapDiv = html `<div style="height: 400px;"></div>`
+
+map = L.map(mapDiv, {
+  zoomControl: false,
+  dragging: false,
+  scrollWheelZoom: false
+});
+
+L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png').addTo(map);
+
+distritos = L.geoJSON(data, {
+  style: { color: "#4b4b4bff", fillOpacity: 0.2 },
+  onEachFeature: (feat, layer) => {
+    layer.bindTooltip(feat.properties.Distrito, { sticky: true });
+  }
+}).addTo(map);
+
+map.fitBounds(distritos.getBounds());
+
+mapDiv;
 ```
