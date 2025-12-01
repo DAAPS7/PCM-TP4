@@ -2,8 +2,9 @@
 title: "Eleições Legislativas 2025"
 format: 
   dashboard:
-    orientation: rows
+    orientation: columns
     scrolling: true
+    page-layout: none
 ---
 
 ```{ojs}
@@ -36,25 +37,35 @@ mapDiv;
 
 ```{ojs}
 function getPartidos() {
-  return Object.keys(tbl).filter(partido => 
-    partido !== "Inscritos" && partido !== "Votantes" && partido !== "Abstenção" && partido !== "Brancos" && partido !== "Nulos" && partido !== "Votos Val. Exp. (VVE)"
-  );
+  return Object.keys(tbl).filter(partido => 
+    partido !== "Inscritos" && partido !== "Votantes" && partido !== "Abstenção" && partido !== "Brancos" && partido !== "Nulos" && partido !== "Votos Val. Exp. (VVE)"
+  );
 }
 
 viewof selectedPartido = Inputs.select(getPartidos(), {
-  label: "Selecionar Partido"
+  label: "Selecionar Partido"
 });
 
 function partyVotesByDistrict(partido) {
-  const result = [];
-  const dadosPartido = tbl[partido];
+  const result = [];
+  const dadosPartido = tbl[partido];
 
-  for (const [Distrito, Votos] of Object.entries(dadosPartido)) {
-    result.push({ Distrito, Votos });
-  }
+  for (const [Distrito, Votos] of Object.entries(dadosPartido)) {
+    result.push({ Distrito, Votos });
+  }
 
-  return result;
+  return result;
 }
 
-partyVotesByDistrict(selectedPartido);
+Plot.plot({
+  title: `Votos por Distrito para o partido: ${selectedPartido}`,
+  marks: [
+    Plot.barY(partyVotesByDistrict(selectedPartido), {
+      x: "Distrito",
+      y: "Votos",
+    }),
+  ],
+  width: 1200,
+  height: 300
+})
 ```
