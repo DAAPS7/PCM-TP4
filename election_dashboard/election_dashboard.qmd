@@ -13,20 +13,83 @@ tbl = FileAttachment("data/Legislativas1.json").json()
 
 html `<link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />`
 
+function getPartyColors() { 
+  return { 
+    "PS": "#ff0000", 
+    "PPD/PSD.CDS-PP": "#ff9900", 
+    "CH": "#0000ff", 
+    "IL": "#00ffff", 
+    "B.E.": "#ff00ff", 
+    "PCP-PEV": "#008000", 
+    "L": "#800080", 
+    "PAN": "#00ff00" 
+  }; 
+}
+
+function partyVotesByDistrict(partido) {
+  const result = [];
+  const dadosPartido = tbl[partido];
+
+  for (const [Distrito, Votos] of Object.entries(dadosPartido)) {
+    result.push({ Distrito, Votos });
+  }
+
+  return result.sort((a, b) => b.votos - a.votos);
+}
+
+function votosPorDistrito(distritoNome) {
+  const result = [];
+
+  for (const [partido, distritos] of Object.entries(tbl)) {
+    if (partido !== "Inscritos" && partido !== "Votantes" && partido !== "Abstenção" && partido !== "Brancos" && partido !== "Nulos" && partido !== "Votos Val. Exp. (VVE)"
+    ) {
+      const votos = distritos[distritoNome];
+      if (votos !== undefined) {
+        result.push({ partido, votos });
+      }
+    }
+  }
+
+  return result.sort((a, b) => b.votos - a.votos);
+}
+
+function toTitleCase(str) {
+  return str.toLowerCase().split(' ').map(word => {
+    if(word !== "do")
+      return word.charAt(0).toUpperCase() + word.slice(1);
+    else
+      return word;
+  }).join(' ');
+}
+
+mutable selectedDistrito = "Aveiro";
+
 mapDiv = html `<div style="height: 400px;"></div>`
 
 map = L.map(mapDiv, {
-  zoomControl: false,
-  dragging: false,
-  scrollWheelZoom: false
+  zoomControl: true,
+  dragging: true,
+  scrollWheelZoom: true
 });
 
-L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png').addTo(map);
+L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png').addTo(map); 
 
 distritos = L.geoJSON(data, {
-  style: { color: "#4b4b4bff", fillOpacity: 0.2 },
+  style: (feat) => { 
+    const distrito = toTitleCase(feat.properties?.Distrito);
+    const vencedor = votosPorDistrito(distrito)[0]?.partido;
+
+    return { 
+      fillColor: getPartyColors()[vencedor] || "#b3afafab", 
+      fillOpacity: 0.7 
+    }; 
+  },
   onEachFeature: (feat, layer) => {
-    layer.bindTooltip(feat.properties.Distrito, { sticky: true });
+    layer.bindTooltip(toTitleCase(feat.properties?.Distrito),
+    { sticky: true });
+    layer.on("click", () => { 
+      mutable selectedDistrito = toTitleCase(feat.properties?.Distrito); 
+    }); 
   }
 }).addTo(map);
 
@@ -36,6 +99,9 @@ mapDiv;
 ```
 
 ```{ojs}
+
+Inputs.table(votosPorDistrito(selectedDistrito), { columns: ["partido", "votos"] });
+
 function getPartidos() {
   return Object.keys(tbl).filter(partido => 
     partido !== "Inscritos" && partido !== "Votantes" && partido !== "Abstenção" && partido !== "Brancos" && partido !== "Nulos" && partido !== "Votos Val. Exp. (VVE)"
@@ -46,17 +112,6 @@ viewof selectedPartido = Inputs.select(getPartidos(), {
   label: "Selecionar Partido"
 });
 
-function partyVotesByDistrict(partido) {
-  const result = [];
-  const dadosPartido = tbl[partido];
-
-  for (const [Distrito, Votos] of Object.entries(dadosPartido)) {
-    result.push({ Distrito, Votos });
-  }
-
-  return result;
-}
-
 Plot.plot({
   title: `Votos por Distrito para o partido: ${selectedPartido}`,
   marks: [
@@ -66,6 +121,6 @@ Plot.plot({
     }),
   ],
   width: 1200,
-  height: 300
+  height: 700
 })
 ```
