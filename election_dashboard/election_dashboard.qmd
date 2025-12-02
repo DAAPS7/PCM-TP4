@@ -8,11 +8,14 @@ format:
 ---
 
 ```{ojs}
+// GeoJSON data 
 data = FileAttachment("data/ContinenteDistritos_geo.geojson").json()
+// Elections data
 tbl = FileAttachment("data/Legislativas1.json").json()
 
 html `<link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />`
 
+// Returns colors for the parties
 function getPartyColors() { 
   return { 
     "PS": "#ff0000", 
@@ -26,33 +29,43 @@ function getPartyColors() {
   }; 
 }
 
-function partyVotesByDistrict(partido) {
-  const result = [];
-  const dadosPartido = tbl[partido];
+// Return an array of all the parties
+function getParties() {
+  return Object.keys(tbl).filter(party => 
+    party !== "Inscritos" && party !== "Votantes" && party !== "Abstenção" && party !== "Brancos" && party !== "Nulos" && party  !== "Votos Val. Exp. (VVE)"
+  );
+}
 
-  for (const [Distrito, Votos] of Object.entries(dadosPartido)) {
+// Return the votes for all districts from the selected party
+function partyVotesByDistrict(party) {
+  const result = [];
+  const partyData = tbl[party];
+
+  for (const [Distrito, Votos] of Object.entries(partyData)) {
     result.push({ Distrito, Votos });
   }
 
-  return result.sort((a, b) => b.votos - a.votos);
+  return result.sort((a, b) => b.Votos - a.Votos);
 }
 
-function votosPorDistrito(distritoNome) {
+// Return the the votes for all parties in the selected district
+function districtVotes(districtName) {
   const result = [];
 
-  for (const [partido, distritos] of Object.entries(tbl)) {
-    if (partido !== "Inscritos" && partido !== "Votantes" && partido !== "Abstenção" && partido !== "Brancos" && partido !== "Nulos" && partido !== "Votos Val. Exp. (VVE)"
+  for (const [Partido, Distritos] of Object.entries(tbl)) {
+    if (Partido !== "Inscritos" && Partido !== "Votantes" && Partido !== "Abstenção" && Partido !== "Brancos" && Partido !== "Nulos" && Partido !== "Votos Val. Exp. (VVE)"
     ) {
-      const votos = distritos[distritoNome];
-      if (votos !== undefined) {
-        result.push({ partido, votos });
+      const Votos = Distritos[districtName];
+      if (Votos !== undefined) {
+        result.push({ Partido, Votos });
       }
     }
   }
 
-  return result.sort((a, b) => b.votos - a.votos);
+  return result.sort((a, b) => b.Votos - a.Votos);
 }
 
+// Converts text to title case (First letter of each word capitalized)
 function toTitleCase(str) {
   return str.toLowerCase().split(' ').map(word => {
     if(word !== "do")
@@ -62,60 +75,62 @@ function toTitleCase(str) {
   }).join(' ');
 }
 
-mutable selectedDistrito = "Aveiro";
+mutable selectedDistrict = "Aveiro";
 
+// Create the map div
 mapDiv = html `<div style="height: 400px;"></div>`
 
+// Create the map
 map = L.map(mapDiv, {
   zoomControl: true,
   dragging: true,
   scrollWheelZoom: true
 });
 
-L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png').addTo(map); 
+tileLayer = L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png').addTo(map); 
 
-distritos = L.geoJSON(data, {
+districts = L.geoJSON(data, {
   style: (feat) => { 
-    const distrito = toTitleCase(feat.properties?.Distrito);
-    const vencedor = votosPorDistrito(distrito)[0]?.partido;
+    // Convert the district name from "VIANA DO CASTELO" to "Viana do Castelo"
+    const district = toTitleCase(feat.properties?.Distrito);
+    // Party with the most votes for the district
+    const winner = districtVotes(district)[0]?.Partido;
 
-    return { 
-      fillColor: getPartyColors()[vencedor] || "#b3afafab", 
+    return {
+      fillColor: getPartyColors()[winner] || "#b3afafab", // Set the district color to the winning party 
       fillOpacity: 0.7 
     }; 
   },
   onEachFeature: (feat, layer) => {
-    layer.bindTooltip(toTitleCase(feat.properties?.Distrito),
-    { sticky: true });
+    // Show the district name on hover
+    layer.bindTooltip(toTitleCase(feat.properties?.Distrito), { sticky: true });
+
+    // Allow the user to select a district
     layer.on("click", () => { 
-      mutable selectedDistrito = toTitleCase(feat.properties?.Distrito); 
+      mutable selectedDistrict = toTitleCase(feat.properties?.Distrito); 
     }); 
   }
 }).addTo(map);
 
-map.fitBounds(distritos.getBounds());
+// Adjust the map limits to the group of districts (country) and centers it
+mapObject = map.fitBounds(districts.getBounds());
 
-mapDiv;
+// Table of the votes in the selected district
+Inputs.table(districtVotes(selectedDistrict), { columns: ["Partido", "Votos"] });
 ```
 
 ```{ojs}
 
-Inputs.table(votosPorDistrito(selectedDistrito), { columns: ["partido", "votos"] });
-
-function getPartidos() {
-  return Object.keys(tbl).filter(partido => 
-    partido !== "Inscritos" && partido !== "Votantes" && partido !== "Abstenção" && partido !== "Brancos" && partido !== "Nulos" && partido !== "Votos Val. Exp. (VVE)"
-  );
-}
-
-viewof selectedPartido = Inputs.select(getPartidos(), {
+// Dropdown selector for a party
+viewof selectedParty = Inputs.select(getParties(), {
   label: "Selecionar Partido"
 });
 
+// Graph with the votes in the different districts for the selected party
 Plot.plot({
-  title: `Votos por Distrito para o partido: ${selectedPartido}`,
+  title: `Votos por Distrito para o partido: ${selectedParty}`,
   marks: [
-    Plot.barY(partyVotesByDistrict(selectedPartido), {
+    Plot.barY(partyVotesByDistrict(selectedParty), {
       x: "Distrito",
       y: "Votos",
     }),
