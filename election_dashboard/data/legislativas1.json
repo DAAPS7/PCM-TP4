@@ -21,7 +21,8 @@
     "RA Açores": 230289,
     "RA Madeira": 255801,
     "Europa": 948062,
-    "Fora da Europa": 636660
+    "Fora da Europa": 636660,
+    "Total": 10848816
   },
   "Votantes": {
     "Aveiro": 414346,
@@ -45,7 +46,8 @@
     "RA Açores": 100910,
     "RA Madeira": 138937,
     "Europa": 256784,
-    "Fora da Europa": 98234
+    "Fora da Europa": 98234,
+    "Total": 6319969
   },
   "Abstenção": {
     "Aveiro": 35.46464811656503,
@@ -69,7 +71,8 @@
     "RA Açores": 56.1811462987811,
     "RA Madeira": 45.68551334826682,
     "Europa": 72.91485156034099,
-    "Fora da Europa": 84.57041434988848
+    "Fora da Europa": 84.57041434988848,
+    "Total": 41.74508075351264
   },
   "Brancos": {
     "Aveiro": 6649,
@@ -93,7 +96,8 @@
     "RA Açores": 3010,
     "RA Madeira": 549,
     "Europa": 1264,
-    "Fora da Europa": 368
+    "Fora da Europa": 368,
+    "Total": 87654
   },
   "Nulos": {
     "Aveiro": 3771,
@@ -117,7 +121,8 @@
     "RA Açores": 1150,
     "RA Madeira": 1839,
     "Europa": 82872,
-    "Fora da Europa": 32960
+    "Fora da Europa": 32960,
+    "Total": 172994
   },
   "ADN": {
     "Aveiro": 6989,
@@ -141,7 +146,8 @@
     "RA Açores": 1666,
     "RA Madeira": 1551,
     "Europa": 1201,
-    "Fora da Europa": 1483
+    "Fora da Europa": 1483,
+    "Total": 81660
   },
   "B.E.": {
     "Aveiro": 7028,
@@ -165,7 +171,8 @@
     "RA Açores": 2106,
     "RA Madeira": 1871,
     "Europa": 4743,
-    "Fora da Europa": 1760
+    "Fora da Europa": 1760,
+    "Total": 125808
   },
   "CH": {
     "Aveiro": 85834,
@@ -189,7 +196,8 @@
     "RA Açores": 23059,
     "RA Madeira": 29048,
     "Europa": 72010,
-    "Fora da Europa": 20234
+    "Fora da Europa": 20234,
+    "Total": 1438554
   },
   "E": {
     "Aveiro": 525,
@@ -213,7 +221,8 @@
     "RA Açores": 119,
     "RA Madeira": 186,
     "Europa": 252,
-    "Fora da Europa": 131
+    "Fora da Europa": 131,
+    "Total": 9046
   },
   "IL": {
     "Aveiro": 23452,
@@ -237,7 +246,8 @@
     "RA Açores": 3484,
     "RA Madeira": 3665,
     "Europa": 6452,
-    "Fora da Europa": 2066
+    "Fora da Europa": 2066,
+    "Total": 338974
   },
   "JPP": {
     "Aveiro": "-",
@@ -261,7 +271,8 @@
     "RA Açores": 271,
     "RA Madeira": 17113,
     "Europa": 551,
-    "Fora da Europa": 237
+    "Fora da Europa": 237,
+    "Total": 20900
   },
   "L": {
     "Aveiro": 12752,
@@ -285,7 +296,8 @@
     "RA Açores": 2539,
     "RA Madeira": 1750,
     "Europa": 5626,
-    "Fora da Europa": 997
+    "Fora da Europa": 997,
+    "Total": 257291
   },
   "MPT": {
     "Aveiro": "-",
@@ -309,7 +321,8 @@
     "RA Açores": 122,
     "RA Madeira": 356,
     "Europa": "-",
-    "Fora da Europa": "-"
+    "Fora da Europa": "-",
+    "Total": 478
   },
   "NC": {
     "Aveiro": 289,
@@ -333,7 +346,8 @@
     "RA Açores": "-",
     "RA Madeira": "-",
     "Europa": 343,
-    "Fora da Europa": 198
+    "Fora da Europa": 198,
+    "Total": 3304
   },
   "ND": {
     "Aveiro": 472,
@@ -357,7 +371,8 @@
     "RA Açores": "-",
     "RA Madeira": 434,
     "Europa": 504,
-    "Fora da Europa": 1485
+    "Fora da Europa": 1485,
+    "Total": 10216
   },
   "PAN": {
     "Aveiro": 5134,
@@ -381,7 +396,8 @@
     "RA Açores": 1314,
     "RA Madeira": 1450,
     "Europa": 4072,
-    "Fora da Europa": 2019
+    "Fora da Europa": 2019,
+    "Total": 86930
   },
   "PCP-PEV": {
     "Aveiro": 4924,
@@ -405,7 +421,8 @@
     "RA Açores": 1224,
     "RA Madeira": 1758,
     "Europa": 2214,
-    "Fora da Europa": 585
+    "Fora da Europa": 585,
+    "Total": 183686
   },
   "PCTP/MRPP": {
     "Aveiro": 1008,
@@ -429,7 +446,8 @@
     "RA Açores": "-",
     "RA Madeira": "-",
     "Europa": 785,
-    "Fora da Europa": 299
+    "Fora da Europa": 299,
+    "Total": 11896
   },
   "PLS": {
     "Aveiro": "-",
@@ -453,7 +471,8 @@
     "RA Açores": "-",
     "RA Madeira": "-",
     "Europa": 442,
-    "Fora da Europa": 545
+    "Fora da Europa": 545,
+    "Total": 7332
   },
   "PPD/PSD.CDS-PP": {
     "Aveiro": 163669,
@@ -477,7 +496,8 @@
     "RA Açores": "-",
     "RA Madeira": 57440,
     "Europa": 37411,
-    "Fora da Europa": 19076
+    "Fora da Europa": 19076,
+    "Total": 1971602
   },
   "PPD/PSD.CDS-PP.PPM": {
     "Aveiro": "-",
@@ -501,7 +521,8 @@
     "RA Açores": 36886,
     "RA Madeira": "-",
     "Europa": "-",
-    "Fora da Europa": "-"
+    "Fora da Europa": "-",
+    "Total": 36886
   },
   "PPM": {
     "Aveiro": 304,
@@ -525,7 +546,8 @@
     "RA Açores": "-",
     "RA Madeira": 452,
     "Europa": 186,
-    "Fora da Europa": 170
+    "Fora da Europa": 170,
+    "Total": 5616
   },
   "PS": {
     "Aveiro": 90030,
@@ -549,7 +571,8 @@
     "RA Açores": 23825,
     "RA Madeira": 18704,
     "Europa": 34582,
-    "Fora da Europa": 13144
+    "Fora da Europa": 13144,
+    "Total": 1442546
   },
   "PTP": {
     "Aveiro": "-",
@@ -573,7 +596,8 @@
     "RA Açores": "-",
     "RA Madeira": 425,
     "Europa": "-",
-    "Fora da Europa": "-"
+    "Fora da Europa": "-",
+    "Total": 425
   },
   "R.I.R.": {
     "Aveiro": 936,
@@ -597,7 +621,8 @@
     "RA Açores": 135,
     "RA Madeira": 346,
     "Europa": 329,
-    "Fora da Europa": 164
+    "Fora da Europa": 164,
+    "Total": 14021
   },
   "VP": {
     "Aveiro": 580,
@@ -621,6 +646,7 @@
     "RA Açores": "-",
     "RA Madeira": "-",
     "Europa": 945,
-    "Fora da Europa": 313
+    "Fora da Europa": 313,
+    "Total": 12150
   }
 }

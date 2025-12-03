@@ -7,7 +7,14 @@ format:
     page-layout: none
 ---
 
+# Principal
+
+## Column
+
+### Row 1
+
 ```{ojs}
+
 // GeoJSON data 
 data = FileAttachment("data/ContinenteDistritos_geo.geojson").json()
 // Elections data
@@ -41,8 +48,11 @@ function partyVotesByDistrict(party) {
   const result = [];
   const partyData = tbl[party];
 
-  for (const [Distrito, Votos] of Object.entries(partyData)) {
-    result.push({ Distrito, Votos });
+  for (let [Distrito, Votos] of Object.entries(partyData)) {
+    // Make sure the "-" and "c.r" votes convert to 0
+    Votos = parseInt(Votos) || 0;
+    
+    result.push({ Distrito, Votos });
   }
 
   return result.sort((a, b) => b.Votos - a.Votos);
@@ -55,7 +65,9 @@ function districtVotes(districtName) {
   for (const [Partido, Distritos] of Object.entries(tbl)) {
     if (Partido !== "Inscritos" && Partido !== "Votantes" && Partido !== "Abstenção" && Partido !== "Brancos" && Partido !== "Nulos" && Partido !== "Votos Val. Exp. (VVE)"
     ) {
-      const Votos = Distritos[districtName];
+      // Make sure the "-" and "c.r" votes convert to 0
+      const Votos = parseInt(Distritos[districtName]) || 0;
+
       if (Votos !== undefined) {
         result.push({ Partido, Votos });
       }
@@ -75,21 +87,24 @@ function toTitleCase(str) {
   }).join(' ');
 }
 
-mutable selectedDistrict = "Aveiro";
+mutable selectedDistrict = "Lisboa";
 
 // Create the map div
-mapDiv = html `<div style="height: 400px;"></div>`
+mainMapDiv = html `<div style="height: 400px;"></div>`
 
 // Create the map
-map = L.map(mapDiv, {
+mainMap = L.map(mainMapDiv, {
   zoomControl: true,
   dragging: true,
   scrollWheelZoom: true
 });
 
-tileLayer = L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png').addTo(map); 
+// Tile layer loads and displays the base map imagery
+mainMapTileLayer = L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png').addTo(mainMap); 
 
-districts = L.geoJSON(data, {
+// Render the map
+mainMapDistricts = L.geoJSON(data, {
+  // Control colors, borders, and fill for polygons/lines
   style: (feat) => { 
     // Convert the district name from "VIANA DO CASTELO" to "Viana do Castelo"
     const district = toTitleCase(feat.properties?.Distrito);
@@ -101,6 +116,7 @@ districts = L.geoJSON(data, {
       fillOpacity: 0.7 
     }; 
   },
+  // Add popups, tooltips, or event handlers to each feature
   onEachFeature: (feat, layer) => {
     // Show the district name on hover
     layer.bindTooltip(toTitleCase(feat.properties?.Distrito), { sticky: true });
@@ -110,32 +126,106 @@ districts = L.geoJSON(data, {
       mutable selectedDistrict = toTitleCase(feat.properties?.Distrito); 
     }); 
   }
-}).addTo(map);
+}).addTo(mainMap);
 
 // Adjust the map limits to the group of districts (country) and centers it
-mapObject = map.fitBounds(districts.getBounds());
+mainMapObject = mainMap.fitBounds(mainMapDistricts.getBounds());
 
+// Get the abstention for the selected district and the total abstention
+selectedDistrictAbstention = `${tbl["Abstenção"][selectedDistrict].toFixed(2)}%`;
+totalAbstention = `${tbl["Abstenção"].Total.toFixed(2)}%`;
+
+// Get the total of registered people
+totalRegistered = tbl["Inscritos"].Total;
+
+// Return the ranking of abstention
+function getRanking(district) {
+  const table = tbl["Abstenção"];
+
+  // Remove the total and sorts the array from lowest to highest
+  const sortedArray = Object.entries(table).filter(([district]) => district !== "Total").sort((a, b) => a[1] - b[1]);
+
+  // Find the array index from the district name
+  const ranking = sortedArray.findIndex(([name]) => name === district);
+
+  // Sum 1 because of array indexing
+  return ranking + 1;
+}
+
+html`<div>
+  <p><strong>Abstenção ${selectedDistrict}:</strong> ${selectedDistrictAbstention}</p>
+  <p><strong>Abstenção Total:</strong> ${totalAbstention}</p>
+  <p><strong>Ranking de Abstenção:</strong> ${getRanking(selectedDistrict)}/22</p>
+  <p><strong>Total de Inscritos:</strong> ${totalRegistered}</p>
+</div>`
+
+```
+
+```{ojs}
 // Table of the votes in the selected district
 Inputs.table(districtVotes(selectedDistrict), { columns: ["Partido", "Votos"] });
 ```
 
+### Row 2
+
 ```{ojs}
+
+// Returns the intensity of votes in the selected district for the selected party
+function calculateIntensity(party, district) {
+  // Party votes for the selected district
+  const partyVotes = parseInt(tbl[party]?.[district]) || 0;
+  // Total votes of all parties for the district
+  const districtVotes = tbl["Votantes"]?.[district] || 1;
+
+  return partyVotes / districtVotes;
+}
 
 // Dropdown selector for a party
 viewof selectedParty = Inputs.select(getParties(), {
-  label: "Selecionar Partido"
+  label: "Partido"
 });
 
-// Graph with the votes in the different districts for the selected party
-Plot.plot({
-  title: `Votos por Distrito para o partido: ${selectedParty}`,
-  marks: [
-    Plot.barY(partyVotesByDistrict(selectedParty), {
-      x: "Distrito",
-      y: "Votos",
-    }),
-  ],
-  width: 1200,
-  height: 700
-})
+// Create the map div
+intensityMapDiv = html `<div style="height: 400px;"></div>`
+
+// Create the map
+intensityMap = L.map(intensityMapDiv, {
+  zoomControl: true,
+  dragging: true,
+  scrollWheelZoom: true
+});
+
+// Tile layer loads and displays the base map imagery
+intensityMapTileLayer = L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png').addTo(intensityMap); 
+
+// Handle style layer separately to clear the district colors and prevent overlapping
+intensityMapLayer = intensityMapDistricts.eachLayer((layer) => {
+  const district = toTitleCase(layer.feature.properties?.Distrito);
+  const intensity = calculateIntensity(selectedParty, district);
+  
+  // Map styling
+  layer.setStyle({
+    fillColor: getPartyColors()[selectedParty] || "#b3afafab",
+    fillOpacity: Math.max(0.1, intensity * 1.5)
+  });
+});
+
+// Render the map
+intensityMapDistricts = L.geoJSON(data, {
+  // Add popups, tooltips, or event handlers to each feature
+  onEachFeature: (feat, layer) => {
+    // Show the district name on hover
+    layer.bindTooltip(toTitleCase(feat.properties?.Distrito), { sticky: true });
+  }
+}).addTo(intensityMap);
+
+// Adjust the map limits to the group of districts (country) and centers it
+intensityMapObject = intensityMap.fitBounds(intensityMapDistricts.getBounds());
 ```
+
+```{ojs}
+// Table of the votes in the districts of the selected party
+Inputs.table(partyVotesByDistrict(selectedParty), { columns: ["Distrito", "Votos"] });
+```
+
+# Gráfico

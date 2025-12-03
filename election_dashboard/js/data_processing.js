@@ -23,9 +23,8 @@ function cleanElectionData(rawData) {
           if (row[code]) empty = false;
         });
 
-        if (empty) {
-          delete cleaned[item];
-        }
+        if (empty) delete cleaned[item];
+        else cleaned[item]["Total"] = row["Total"];
       }
     }
   });
