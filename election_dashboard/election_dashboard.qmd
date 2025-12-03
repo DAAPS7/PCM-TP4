@@ -92,44 +92,48 @@ mutable selectedDistrict = "Lisboa";
 // Create the map div
 mainMapDiv = html `<div style="height: 400px;"></div>`
 
-// Create the map
-mainMap = L.map(mainMapDiv, {
-  zoomControl: true,
-  dragging: true,
-  scrollWheelZoom: true
-});
+codeBlock = {
+  // Create the map
+  const mainMap = L.map(mainMapDiv, {
+    zoomControl: true,
+    dragging: true,
+    scrollWheelZoom: true
+  });
 
-// Tile layer loads and displays the base map imagery
-mainMapTileLayer = L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png').addTo(mainMap); 
+  // Tile layer loads and displays the base map imagery
+  L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png').addTo(mainMap); 
 
-// Render the map
-mainMapDistricts = L.geoJSON(data, {
-  // Control colors, borders, and fill for polygons/lines
-  style: (feat) => { 
-    // Convert the district name from "VIANA DO CASTELO" to "Viana do Castelo"
-    const district = toTitleCase(feat.properties?.Distrito);
-    // Party with the most votes for the district
-    const winner = districtVotes(district)[0]?.Partido;
+  // Render the map
+  const mainMapDistricts = L.geoJSON(data, {
+    // Control colors, borders, and fill for polygons/lines
+    style: (feat) => { 
+      // Convert the district name from "VIANA DO CASTELO" to "Viana do Castelo"
+      const district = toTitleCase(feat.properties?.Distrito);
+      // Party with the most votes for the district
+      const winner = districtVotes(district)[0]?.Partido;
 
-    return {
-      fillColor: getPartyColors()[winner] || "#b3afafab", // Set the district color to the winning party 
-      fillOpacity: 0.7 
-    }; 
-  },
-  // Add popups, tooltips, or event handlers to each feature
-  onEachFeature: (feat, layer) => {
-    // Show the district name on hover
-    layer.bindTooltip(toTitleCase(feat.properties?.Distrito), { sticky: true });
+      return {
+        fillColor: getPartyColors()[winner] || "#b3afafab", // Set the district color to the winning party 
+        color: "#ffffffcf",
+        weight: 1,
+        fillOpacity: 0.7 
+      }; 
+    },
+    // Add popups, tooltips, or event handlers to each feature
+    onEachFeature: (feat, layer) => {
+      // Show the district name on hover
+      layer.bindTooltip(toTitleCase(feat.properties?.Distrito), { sticky: true });
 
-    // Allow the user to select a district
-    layer.on("click", () => { 
-      mutable selectedDistrict = toTitleCase(feat.properties?.Distrito); 
-    }); 
-  }
-}).addTo(mainMap);
+      // Allow the user to select a district
+      layer.on("click", () => { 
+        mutable selectedDistrict = toTitleCase(feat.properties?.Distrito); 
+      }); 
+    }
+  }).addTo(mainMap);
 
-// Adjust the map limits to the group of districts (country) and centers it
-mainMapObject = mainMap.fitBounds(mainMapDistricts.getBounds());
+  // Adjust the map limits to the group of districts (country) and centers it
+  mainMap.fitBounds(mainMapDistricts.getBounds());
+}
 
 // Get the abstention for the selected district and the total abstention
 selectedDistrictAbstention = `${tbl["Abstenção"][selectedDistrict].toFixed(2)}%`;
@@ -202,13 +206,17 @@ intensityMapTileLayer = L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/
 intensityMapLayer = intensityMapDistricts.eachLayer((layer) => {
   const district = toTitleCase(layer.feature.properties?.Distrito);
   const intensity = calculateIntensity(selectedParty, district);
-  
+
   // Map styling
   layer.setStyle({
     fillColor: getPartyColors()[selectedParty] || "#b3afafab",
-    fillOpacity: Math.max(0.1, intensity * 1.5)
+    color: "#0000004f",
+    weight: 1,
+    fillOpacity: Math.max(0, intensity * 2.5)
   });
 });
+
+
 
 // Render the map
 intensityMapDistricts = L.geoJSON(data, {
@@ -229,3 +237,12 @@ Inputs.table(partyVotesByDistrict(selectedParty), { columns: ["Distrito", "Votos
 ```
 
 # Gráfico
+
+```{ojs}
+hierarchy = d3.hierarchy(tbl)
+  .sum(d => d.value)
+  .sort((a, b) => b.value - a.value);
+
+root = d3.partition()
+  .size([2 * Math.PI, hierarchy.height + 1])(hierarchy);
+```
