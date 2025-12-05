@@ -246,7 +246,8 @@ function convertByParty() {
     const partidoNode = { name: partido, children: [] };
 
     for (const [distrito, votos] of Object.entries(tbl[partido])) {
-      partidoNode.children.push({ name: distrito, value: votos });
+      if(distrito !== "Total")
+        partidoNode.children.push({ name: distrito, value: votos });
     }
 
     root.children.push(partidoNode);
@@ -259,20 +260,19 @@ flareData = convertByParty();
 
 chart = {
   // Specify the chart’s dimensions.
-  const width = 928;
+  const width = 500;
   const height = width;
   const radius = width / 6;
-
-  // Create the color scale.
-  const color = d3.scaleOrdinal(d3.quantize(d3.interpolateRainbow, flareData.children.length + 1));
 
   // Compute the layout.
   const hierarchy = d3.hierarchy(flareData)
       .sum(d => d.value)
       .sort((a, b) => b.value - a.value);
+
   const root = d3.partition()
       .size([2 * Math.PI, hierarchy.height + 1])
     (hierarchy);
+
   root.each(d => d.current = d);
 
   // Create the arc generator.
@@ -287,14 +287,14 @@ chart = {
   // Create the SVG container.
   const svg = d3.create("svg")
       .attr("viewBox", [-width / 2, -height / 2, width, width])
-      .style("font", "10px sans-serif");
+      .style("font", "8px sans-serif");
 
   // Append the arcs.
   const path = svg.append("g")
     .selectAll("path")
     .data(root.descendants().slice(1))
     .join("path")
-      .attr("fill", d => { while (d.depth > 1) d = d.parent; return color(d.data.name); })
+      .attr("fill", d => { while(d.depth > 1) d = d.parent; return getPartyColors()[d.data.name] || "#b3afafab"; })
       .attr("fill-opacity", d => arcVisible(d.current) ? (d.children ? 0.6 : 0.4) : 0)
       .attr("pointer-events", d => arcVisible(d.current) ? "auto" : "none")
       .attr("d", d => arc(d.current));
@@ -379,4 +379,55 @@ chart = {
 
   return svg.node();
 }
+```
+
+# Municípios
+
+```{ojs}
+// GeoJSON data 
+municipalitiesData = FileAttachment("data/Portugal_Municipalities.geojson").json()
+
+// Create the map div
+municipalitiesMapDiv = html `<div style="height: 400px;"></div>`
+
+municipalitiesCodeBlock = {
+  // Create the map
+  const municipalitiesMap = L.map(municipalitiesMapDiv, {
+    zoomControl: true,
+    dragging: true,
+    scrollWheelZoom: true
+  });
+
+  // Tile layer loads and displays the base map imagery
+  L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png').addTo(municipalitiesMap); 
+
+  // Render the map
+  const municipalitiesMapDistricts = L.geoJSON(municipalitiesData, {
+    // Control colors, borders, and fill for polygons/lines
+    style: (feat) => { 
+      // * District is in caps *
+      const district = feat.properties?.Distrito;
+
+      return {
+        fillColor: "#ff0000",
+        color: "#ffffffcf",
+        weight: 1,
+        fillOpacity: 0.7 
+      }; 
+    },
+    // Add popups, tooltips, or event handlers to each feature
+    onEachFeature: (feat, layer) => {
+      // Title case the municipalities but check if they are string beforehand
+      const concelho = typeof feat.properties?.Concelho === "string" ? toTitleCase(feat.properties?.Concelho) : null;
+      
+      // Show the district name on hover
+      layer.bindTooltip(concelho, { sticky: true });
+
+    }
+  }).addTo(municipalitiesMap);
+
+  // Adjust the map limits to the group of municipalities and centers it
+  municipalitiesMap.fitBounds(municipalitiesMapDistricts.getBounds());
+}
+
 ```
