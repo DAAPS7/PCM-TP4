@@ -1,6 +1,10 @@
 $(document).ready(function () {
-  $.getJSON("data/legislativas_raw.json", function (data) {
-    //const obj = cleanElectionData(data);
+  //$.getJSON("data/legislativas_raw.json", function (data) {
+  //const obj = cleanElectionData(data);
+  //exportJSON(obj);
+  //});
+  $.getJSON("data/legislativas_concelhos.json", function (data) {
+    //const obj = cleanMunicipalitiesData(data);
     //exportJSON(obj);
   });
 });
@@ -55,4 +59,26 @@ function exportJSON(obj) {
   a.download = `${filename}.json`;
   a.click();
   URL.revokeObjectURL(url);
+}
+
+function cleanMunicipalitiesData(rawData) {
+  const cleaned = {};
+
+  rawData.forEach((row) => {
+    if (!row || !row["Nome do Território"]) return;
+
+    const territory = row["Nome do Território"];
+
+    // Copy ALL properties dynamically, excluding the territory name
+    cleaned[territory] = {};
+
+    Object.keys(row).forEach((key) => {
+      if (key !== "Nome do Território") {
+        cleaned[territory][key] = row[key];
+      }
+    });
+  });
+
+  console.log(cleaned);
+  return cleaned;
 }

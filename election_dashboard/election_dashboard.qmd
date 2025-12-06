@@ -386,9 +386,13 @@ chart = {
 ```{ojs}
 // GeoJSON data 
 municipalitiesData = FileAttachment("data/Portugal_Municipalities.geojson").json()
+// Elections data
+muniTbl = FileAttachment("data/Legislativas2.json").json()
 
 // Create the map div
 municipalitiesMapDiv = html `<div style="height: 400px;"></div>`
+
+mutable selectedMunicipality = "Lisboa";
 
 municipalitiesCodeBlock = {
   // Create the map
@@ -405,9 +409,6 @@ municipalitiesCodeBlock = {
   const municipalitiesMapDistricts = L.geoJSON(municipalitiesData, {
     // Control colors, borders, and fill for polygons/lines
     style: (feat) => { 
-      // * District is in caps *
-      const district = feat.properties?.Distrito;
-
       return {
         fillColor: "#ff0000",
         color: "#ffffffcf",
@@ -419,10 +420,16 @@ municipalitiesCodeBlock = {
     onEachFeature: (feat, layer) => {
       // Title case the municipalities but check if they are string beforehand
       const concelho = typeof feat.properties?.Concelho === "string" ? toTitleCase(feat.properties?.Concelho) : null;
+
+      const distrito = typeof feat.properties?.Distrito === "string" ? toTitleCase(feat.properties?.Distrito) : null;
       
       // Show the district name on hover
       layer.bindTooltip(concelho, { sticky: true });
 
+      // Allow the user to select a district
+      layer.on("click", () => { 
+        mutable selectedMunicipality = distrito; 
+      }); 
     }
   }).addTo(municipalitiesMap);
 
@@ -430,4 +437,8 @@ municipalitiesCodeBlock = {
   municipalitiesMap.fitBounds(municipalitiesMapDistricts.getBounds());
 }
 
+```
+
+```{ojs}
+selectedMunicipality;
 ```
