@@ -27,6 +27,7 @@ function getPartyColors() {
   return { 
     "PS": "#ff0000", 
     "PPD/PSD.CDS-PP": "#ff9900", 
+    "PPD/PSD.CDS-PP.PPM": "#ff8c00ff",
     "CH": "#0000ff", 
     "IL": "#00ffff", 
     "B.E.": "#ff00ff", 
@@ -131,8 +132,12 @@ codeBlock = {
     }
   }).addTo(mainMap);
 
-  // Adjust the map limits to the group of districts (country) and centers it
-  mainMap.fitBounds(mainMapDistricts.getBounds());
+  // Adjust the map limits to the group of districts (country) and centers intensity
+  const resizeObserver = new ResizeObserver(() => {
+    mainMap.invalidateSize();
+    mainMap.fitBounds(mainMapDistricts.getBounds()); // Re-center to Portugal
+  });
+  resizeObserver.observe(mainMapDiv);
 }
 
 // Get the abstention for the selected district and the total abstention
@@ -227,8 +232,14 @@ intensityMapDistricts = L.geoJSON(data, {
   }
 }).addTo(intensityMap);
 
-// Adjust the map limits to the group of districts (country) and centers it
-intensityMapObject = intensityMap.fitBounds(intensityMapDistricts.getBounds());
+resizeObserverBlock = {
+  // Adjust the map limits to the group of districts (country) and centers it
+  const resizeObserver = new ResizeObserver(() => {
+    intensityMap.invalidateSize();
+    intensityMap.fitBounds(intensityMapDistricts.getBounds()); // Re-center to Portugal
+  });
+  resizeObserver.observe(intensityMapDiv);
+}
 ```
 
 ```{ojs}
@@ -392,6 +403,41 @@ muniTbl = FileAttachment("data/Legislativas2.json").json()
 // Create the map div
 municipalitiesMapDiv = html `<div style="height: 400px;"></div>`
 
+function getPartyVotes(municipality) {
+  const result = [];
+
+  for(const [Concelho, Partidos] of Object.entries(muniTbl)) {
+    if(Concelho === municipality) {
+      for(const[Partido, Votos] of Object.entries(Partidos)) {
+        if(Partido !== "Brancos" && Partido !== "Nulos" && Partido !== "Votantes" && Partido !== "Inscritos") {
+          result.push({ Partido, Votos });
+        }
+      }
+    }
+  }
+
+  return result.sort((a, b) => b.Votos - a.Votos);
+}
+
+// Formats the municipalities strings to the correct format
+function toTitleCaseMunicipalities(str) {
+  if(str.includes("-")) {
+    return str.toLowerCase().split('-').map(word => {
+      if(word.length > 1)
+        return word.charAt(0).toUpperCase() + word.slice(1);
+      else
+        return word;
+  }).join('-');
+  } else {
+    return str.toLowerCase().split(' ').map(word => {
+    if(word !== "do" && word !== "da" && word !== "de" && word !== "dos" && word !== "das" && word !== "à")
+      return word.charAt(0).toUpperCase() + word.slice(1);
+    else
+      return word;
+  }).join(' ');
+  }
+}
+
 mutable selectedMunicipality = "Lisboa";
 
 municipalitiesCodeBlock = {
@@ -408,9 +454,19 @@ municipalitiesCodeBlock = {
   // Render the map
   const municipalitiesMapDistricts = L.geoJSON(municipalitiesData, {
     // Control colors, borders, and fill for polygons/lines
-    style: (feat) => { 
+    style: (feat) => {
+      
+      let concelho = null;
+
+      if(feat.properties?.Concelho)
+        concelho = toTitleCaseMunicipalities(feat.properties?.Concelho);
+      else if(feat.properties?.MUNICIPIO)
+        concelho = toTitleCaseMunicipalities(feat.properties?.MUNICIPIO);
+
+      const winner = getPartyVotes(concelho)[0]?.Partido;
+
       return {
-        fillColor: "#ff0000",
+        fillColor: getPartyColors()[winner] || "#b3afafab",
         color: "#ffffffcf",
         weight: 1,
         fillOpacity: 0.7 
@@ -418,27 +474,34 @@ municipalitiesCodeBlock = {
     },
     // Add popups, tooltips, or event handlers to each feature
     onEachFeature: (feat, layer) => {
-      // Title case the municipalities but check if they are string beforehand
-      const concelho = typeof feat.properties?.Concelho === "string" ? toTitleCase(feat.properties?.Concelho) : null;
+      let concelho = null;
 
-      const distrito = typeof feat.properties?.Distrito === "string" ? toTitleCase(feat.properties?.Distrito) : null;
+      if(feat.properties?.Concelho)
+        concelho = toTitleCaseMunicipalities(feat.properties?.Concelho);
+      else if(feat.properties?.MUNICIPIO)
+        concelho = toTitleCaseMunicipalities(feat.properties?.MUNICIPIO);
       
       // Show the district name on hover
       layer.bindTooltip(concelho, { sticky: true });
 
       // Allow the user to select a district
       layer.on("click", () => { 
-        mutable selectedMunicipality = distrito; 
+        mutable selectedMunicipality = concelho; 
       }); 
     }
   }).addTo(municipalitiesMap);
 
   // Adjust the map limits to the group of municipalities and centers it
-  municipalitiesMap.fitBounds(municipalitiesMapDistricts.getBounds());
+  const resizeObserver = new ResizeObserver(() => {
+    municipalitiesMap.invalidateSize();
+    municipalitiesMap.fitBounds(municipalitiesMapDistricts.getBounds()); // Re-center to Portugal
+  });
+  resizeObserver.observe(municipalitiesMapDiv);
 }
 
 ```
 
 ```{ojs}
-selectedMunicipality;
+// Table of the votes in the districts of the selected party
+Inputs.table(getPartyVotes(selectedMunicipality), { columns: ["Partido", "Votos"] });
 ```

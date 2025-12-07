@@ -5790,7 +5790,7 @@
     "R.I.R.": 9,
     "VP": 6
   },
-  "Calheta": {
+  "Calheta de S. Jorge": {
     "Inscritos": 3689,
     "Votantes": 1505,
     "Brancos": 50,
@@ -5808,6 +5808,28 @@
     "PPD/PSD.CDS-PP.PPM": 771,
     "PS": 277,
     "R.I.R.": 2
+  },
+  "Calheta": {
+    "Inscritos": 12420,
+    "Votantes": 6335,
+    "Brancos": 29,
+    "Nulos": 93,
+    "ADN": 59,
+    "B.E.": 43,
+    "CH": 1076,
+    "E": 6,
+    "IL": 106,
+    "JPP": 551,
+    "L": 45,
+    "MPT": 12,
+    "ND": 11,
+    "PAN": 45,
+    "PCP-PEV": 43,
+    "PPD/PSD.CDS-PP.PPM": 3675,
+    "PPM": 27,
+    "PS": 486,
+    "PTP": 18,
+    "R.I.R.": 10
   },
   "Câmara de Lobos": {
     "Inscritos": 32879,
@@ -6162,7 +6184,7 @@
     "PS": 4448,
     "R.I.R.": 22
   },
-  "Vila da Praia da Vitória": {
+  "Praia da Vitória": {
     "Inscritos": 19777,
     "Votantes": 8497,
     "Brancos": 300,
