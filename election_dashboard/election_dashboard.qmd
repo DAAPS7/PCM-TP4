@@ -7,7 +7,7 @@ format:
     page-layout: none
 ---
 
-# Principal
+# Continente
 
 ## Column
 
@@ -247,7 +247,7 @@ resizeObserverBlock = {
 Inputs.table(partyVotesByDistrict(selectedParty), { columns: ["Distrito", "Votos"] });
 ```
 
-# Gráfico
+# Sunburst
 
 ```{ojs}
 function convertByParty() {
@@ -271,7 +271,7 @@ flareData = convertByParty();
 
 chart = {
   // Specify the chart’s dimensions.
-  const width = 500;
+  const width = 400;
   const height = width;
   const radius = width / 6;
 
@@ -388,7 +388,12 @@ chart = {
     return `rotate(${x - 90}) translate(${y},0) rotate(${x < 180 ? 0 : 180})`;
   }
 
-  return svg.node();
+  svg.attr("width", "100%").attr("height", "500px");
+
+  const sunburstDiv = html `<div style="height: 500px; width: 100%;"> 
+                ${svg.node()} </div>`;
+
+  return sunburstDiv;
 }
 ```
 
