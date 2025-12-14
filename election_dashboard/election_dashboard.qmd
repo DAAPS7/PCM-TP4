@@ -5,6 +5,7 @@ format:
     orientation: columns
     scrolling: true
     page-layout: none
+    css: style/style.css
 ---
 
 # Continente
@@ -271,7 +272,7 @@ flareData = convertByParty();
 
 chart = {
   // Specify the chart’s dimensions.
-  const width = 400;
+  const width = 700;
   const height = width;
   const radius = width / 6;
 
@@ -388,9 +389,9 @@ chart = {
     return `rotate(${x - 90}) translate(${y},0) rotate(${x < 180 ? 0 : 180})`;
   }
 
-  svg.attr("width", "100%").attr("height", "500px");
+  svg.attr("width", "100%").attr("height", "600px");
 
-  const sunburstDiv = html `<div style="height: 500px; width: 100%;"> 
+  const sunburstDiv = html `<div style="height: 600px; width: 100%;"> 
                 ${svg.node()} </div>`;
 
   return sunburstDiv;
