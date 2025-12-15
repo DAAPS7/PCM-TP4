@@ -4,6 +4,81 @@
   font-family: "Inter", sans-serif;
 }
 
+body {
+  background-color: aliceblue;
+}
+
 nav {
-  color: black;
+  background-color: #006600 !important;
+  padding-left: 40px !important;
+}
+
+.nav-item .active {
+  padding-bottom: 5px;
+  background-color: #006600 !important;
+  font-weight: bold;
+  position: relative;
+}
+
+.nav-item .active::after {
+  content: "";
+  position: absolute;
+  bottom: 0;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 30%;
+  border-bottom: 2px solid white;
+}
+
+.map {
+  border-radius: 10px;
+}
+
+.concelho {
+  padding-top: 15px;
+}
+
+#continente::before {
+  color: #006600;
+  content: "Resultados Continentais";
+  display: block;
+  font-size: 2rem;
+  font-weight: bold;
+  padding: 1rem 0 0.5rem 0;
+  margin-left: 6vh;
+}
+
+#sunburst::before {
+  color: #006600;
+  content: "Visualização Sunburst";
+  display: block;
+  font-size: 2rem;
+  font-weight: bold;
+  padding: 1rem 0 0.5rem 0;
+  margin-left: 6vh;
+}
+
+#municípios::before {
+  color: #006600;
+  content: "Resultados Municipais";
+  display: block;
+  font-size: 2rem;
+  font-weight: bold;
+  padding: 1rem 0 0.5rem 0;
+  margin-left: 6vh;
+}
+
+form label {
+  display: block;
+  font-weight: bold;
+  font-size: 20px;
+  color: #006600;
+  margin-left: 2vh;
+}
+
+select {
+  border-radius: 5px;
+  padding: 5px;
+  margin-top: 4px;
+  margin-left: 6vh;
 }
