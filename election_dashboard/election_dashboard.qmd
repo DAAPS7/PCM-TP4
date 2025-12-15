@@ -520,13 +520,14 @@ municipalitiesCodeBlock = {
   });
   resizeObserver.observe(municipalitiesMapDiv);
 }
-html`<div class="concelho">
-  <p><strong>Concelho: ${selectedMunicipality}</p>
-</div>`
 
 ```
 
 ```{ojs}
+html`<div class="concelho">
+  <p><strong>Resultados ${selectedMunicipality}</p>
+</div>`
+
 chart2 = {
   const data = getPartyVotes(selectedMunicipality);
   
@@ -709,9 +710,11 @@ scatterPlot = {
     .attr("font-weight", "bold")
     .attr("text-anchor", "middle");
   
+  const circleLayer = svg.append("g").attr("class", "circle-layer");
+  const labelLayer = svg.append("g").attr("class", "label-layer");
+
   // Add dots
-  svg.append("g")
-    .selectAll("circle")
+  circleLayer.selectAll("circle")
     .data(scatterData)
     .join("circle")
       .attr("cx", d => x(d.inscritos))
@@ -728,7 +731,7 @@ scatterPlot = {
           .attr("fill-opacity", 1);
         
         // Show municipality name
-        labels.append("text")
+        labelLayer.append("text")
           .attr("class", "hover-label")
           .attr("x", x(d.inscritos))
           .attr("y", y(d.abstencao) - 12)
@@ -744,7 +747,7 @@ scatterPlot = {
           .attr("fill-opacity", 0.7);
         
         // Remove municipality name
-        labels.selectAll(".hover-label").remove();
+        labelLayer.selectAll(".hover-label").remove();
       });
 
   const div = html `<div style="text-align: center">${svg.node()}</div>`;

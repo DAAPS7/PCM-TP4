@@ -36,7 +36,8 @@ nav {
 }
 
 .concelho {
-  padding-top: 15px;
+  padding-top: 5px;
+  text-align: center;
 }
 
 #continente::before {
