@@ -6,6 +6,7 @@ format:
     scrolling: true
     page-layout: none
     css: style/style.css
+    include-after-body: "footer.html"
     include-in-header:
       text: |
         <link rel="icon" href="img/icon.jpeg">
