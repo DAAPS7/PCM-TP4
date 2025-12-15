@@ -401,9 +401,9 @@ chart = {
     return `rotate(${x - 90}) translate(${y},0) rotate(${x < 180 ? 0 : 180})`;
   }
 
-  svg.attr("width", "100%").attr("height", "85vh");
+  svg.attr("width", "100%").attr("height", "80vh");
 
-  const sunburstDiv = html `<div style="height: 85vh; width: 100%;"> 
+  const sunburstDiv = html `<div style="height: 80vh; width: 100%;"> 
                 ${svg.node()} </div>`;
 
   return sunburstDiv;
@@ -411,6 +411,10 @@ chart = {
 ```
 
 # Municípios
+
+## Column
+
+### Row 1
 
 ```{ojs}
 // GeoJSON data 
@@ -591,6 +595,161 @@ chart2 = {
       .call(d3.axisLeft(y).tickSizeOuter(0));
 
   return svg.node();
+}
+
+```
+
+### Row 2
+
+```{ojs}
+
+html `<p style="text-align: center; padding-block: 15px"><strong>Abstenção por Município (%)</p>`;
+
+scatterPlot = {
+  // Prepare data for scatter plot
+  const scatterData = [];
+  
+  for (const [Concelho, data] of Object.entries(muniTbl)) {
+    // Skip "Território Nacional"
+    if (Concelho === "Território Nacional") continue;
+    
+    const inscritos = data["Inscritos"];
+    const votantes = data["Votantes"];
+    
+    // Calculate abstention rate
+    const abstencao = inscritos > 0 ? ((inscritos - votantes) / inscritos) * 100 : 0;
+    
+    // Get winning party
+    const winner = getPartyVotes(Concelho)[0]?.Partido || "Unknown";
+    
+    scatterData.push({
+      concelho: Concelho,
+      inscritos: inscritos,
+      abstencao: abstencao,
+      partido: winner
+    });
+  }
+  
+  // Set up dimensions
+  const width = 928;
+  const height = 500;
+  const marginTop = 20;
+  const marginRight = 20;
+  const marginBottom = 40;
+  const marginLeft = 60;
+  
+  // Create scales
+  const x = d3.scaleLinear()
+    .domain([0, d3.max(scatterData, d => d.inscritos)])
+    .nice()
+    .range([marginLeft, width - marginRight]);
+  
+  const y = d3.scaleLinear()
+    .domain([0, d3.max(scatterData, d => d.abstencao)])
+    .nice()
+    .range([height - marginBottom, marginTop]);
+  
+  // Create SVG
+  const svg = d3.create("svg")
+    .attr("width", width)
+    .attr("height", height)
+    .attr("viewBox", [0, 0, width, height])
+    .attr("style", "max-width: 100%; height: auto;");
+  
+  // Add X axis
+  svg.append("g")
+    .attr("transform", `translate(0,${height - marginBottom})`)
+    .call(d3.axisBottom(x).ticks(width / 80))
+    .call(g => g.select(".domain").remove())
+    .call(g => g.append("text")
+      .attr("x", width - marginRight)
+      .attr("y", 35)
+      .attr("fill", "currentColor")
+      .attr("text-anchor", "end")
+      .attr("font-weight", "bold")
+      .text("Inscritos →"));
+  
+  // Add Y axis
+  svg.append("g")
+    .attr("transform", `translate(${marginLeft},0)`)
+    .call(d3.axisLeft(y).ticks(height / 40))
+    .call(g => g.select(".domain").remove())
+    .call(g => g.append("text")
+      .attr("x", -marginLeft)
+      .attr("y", 10)
+      .attr("fill", "currentColor")
+      .attr("text-anchor", "start")
+      .attr("font-weight", "bold")
+      .text("↑ Abstenção (%)"));
+  
+  // Add grid lines
+  svg.append("g")
+    .attr("stroke", "currentColor")
+    .attr("stroke-opacity", 0.1)
+    .call(g => g.append("g")
+      .selectAll("line")
+      .data(x.ticks())
+      .join("line")
+        .attr("x1", d => x(d))
+        .attr("x2", d => x(d))
+        .attr("y1", marginTop)
+        .attr("y2", height - marginBottom))
+    .call(g => g.append("g")
+      .selectAll("line")
+      .data(y.ticks())
+      .join("line")
+        .attr("y1", d => y(d))
+        .attr("y2", d => y(d))
+        .attr("x1", marginLeft)
+        .attr("x2", width - marginRight));
+  
+  // Create label group for municipality names
+  const labels = svg.append("g")
+    .attr("font-size", 12)
+    .attr("font-weight", "bold")
+    .attr("text-anchor", "middle");
+  
+  // Add dots
+  svg.append("g")
+    .selectAll("circle")
+    .data(scatterData)
+    .join("circle")
+      .attr("cx", d => x(d.inscritos))
+      .attr("cy", d => y(d.abstencao))
+      .attr("r", 4)
+      .attr("fill", d => getPartyColors()[d.partido] || "#b3afafab")
+      .attr("fill-opacity", 0.7)
+      .attr("stroke", "white")
+      .attr("stroke-width", 0.5)
+      .style("cursor", "pointer")
+      .on("mouseover", function(event, d) {
+        d3.select(this)
+          .attr("r", 6)
+          .attr("fill-opacity", 1);
+        
+        // Show municipality name
+        labels.append("text")
+          .attr("class", "hover-label")
+          .attr("x", x(d.inscritos))
+          .attr("y", y(d.abstencao) - 12)
+          .attr("fill", "black")
+          .attr("stroke", "white")
+          .attr("stroke-width", 3)
+          .attr("paint-order", "stroke")
+          .text(d.concelho);
+      })
+      .on("mouseout", function() {
+        d3.select(this)
+          .attr("r", 4)
+          .attr("fill-opacity", 0.7);
+        
+        // Remove municipality name
+        labels.selectAll(".hover-label").remove();
+      });
+
+  const div = html `<div style="text-align: center">${svg.node()}</div>`;
+  
+  return div;
 }
 
 ```
