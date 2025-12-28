@@ -5,6 +5,7 @@ format:
     orientation: columns
     scrolling: true
     page-layout: none
+    code-copy: false 
     css: style/style.css
     include-after-body: "footer.html"
     include-in-header:
@@ -19,6 +20,7 @@ format:
 ### Row 1
 
 ```{ojs}
+//| expandable: false
 
 // GeoJSON data 
 data = FileAttachment("data/ContinenteDistritos_geo.geojson").json()
@@ -176,13 +178,17 @@ html`<div>
 ```
 
 ```{ojs}
+//| expandable: false
+
 // Table of the votes in the selected district
 Inputs.table(districtVotes(selectedDistrict), { columns: ["Partido", "Votos"] });
+
 ```
 
 ### Row 2
 
 ```{ojs}
+//| expandable: false
 
 // Returns the intensity of votes in the selected district for the selected party
 function calculateIntensity(party, district) {
@@ -256,6 +262,8 @@ resizeObserverBlock = {
 ```
 
 ```{ojs}
+//| expandable: false
+
 // Table of the votes in the districts of the selected party
 Inputs.table(partyVotesByDistrict(selectedParty), { columns: ["Distrito", "Votos"] });
 ```
@@ -263,6 +271,8 @@ Inputs.table(partyVotesByDistrict(selectedParty), { columns: ["Distrito", "Votos
 # Sunburst
 
 ```{ojs}
+//| expandable: false
+
 function convertByParty() {
   const root = { name: "Portugal", children: [] };
 
@@ -417,6 +427,8 @@ chart = {
 ### Row 1
 
 ```{ojs}
+//| expandable: false
+
 // GeoJSON data 
 municipalitiesData = FileAttachment("data/Portugal_Municipalities.geojson").json()
 // Elections data
@@ -524,6 +536,8 @@ municipalitiesCodeBlock = {
 ```
 
 ```{ojs}
+//| expandable: false
+
 html`<div class="concelho">
   <p><strong>Resultados ${selectedMunicipality}</p>
 </div>`
@@ -603,6 +617,7 @@ chart2 = {
 ### Row 2
 
 ```{ojs}
+//| expandable: false
 
 html `<p style="text-align: center; padding-block: 15px"><strong>Abstenção por Município (%)</p>`;
 
